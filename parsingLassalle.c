@@ -38,7 +38,6 @@ float EcartType;
 int NumberInEcartType;
 t_Result **ListContact;
 t_Result **finalResult;
-int memTeam[MAXREGION];
 
 
 float moy(t_Region ** region, float number){
@@ -253,13 +252,23 @@ char ***parsingToTheEnd(){
 }
 
 char ***ItsToYouToPlay(t_Region **result, int NumberRegion){
+
+    if (NumberRegion > lenRegion(result)){
+        dprintf(1, "Nombre de regions teste trop grand\n");
+        return (NULL);
+    }
+
     Moyenne = moy(result, NumberRegion);
-    dprintf(1, "La moyenne est %f\n", Moyenne);
     EcartType = __FLT_MAX__;
+
+    dprintf(1, "La moyenne est %f\n", Moyenne);
+    
     NumberInEcartType = 0;
     int maxNum = lenRegion(result) - NumberRegion + 1;
+
+    dprintf(1, "Le nombre de liens sera de %d\n\n", maxNum - 1);
+    
     finalResult = malloc(sizeof (t_Result) * ( maxNum));
-    dprintf(1, "Le nombre de liens sera de %d\n\n",maxNum - 1);
     finalResult[maxNum - 1] = NULL;
 
     for (int i = 0; result[i]; i++){
@@ -529,14 +538,14 @@ int main(int argc, char **argv){
     
     FILE* fd = fopen(argv[1], "r");
     if (fd == NULL)
-        return printf("Remet le \"Region.txt\" oÃ¹ il Ã©tait, batard\n");
+        return printf("Le fichier de region n'a pas ete trouve\n");
     FILE * fdRet = fopen(argv[2], "w");
     if (fdRet == NULL)
-        return printf("impossible d'ouvrir le fichier d'Ã©criture\n");
+        return printf("impossible d'ouvrir le fichier d'ecriture\n");
 
 	int NumberRegion = atoi(argv[3]);
 	if (NumberRegion < 1 || NumberRegion > MAXREGION)
-		return printf("le nombre de rÃ©gions souhaitÃ©s n'est pas valide\n");
+		return printf("le nombre de regions souhaites n'est pas valide\n");
 
     t_Region** result = ReadTheFile(fd);
     if (result == NULL)
