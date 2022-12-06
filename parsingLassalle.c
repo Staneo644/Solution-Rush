@@ -522,7 +522,7 @@ t_Region** PutThePointer(t_Region** MyRegion){
 }
 
 void freepointerpointerstr(char ***str){
-    for (int i; str[i]; i++){
+    for (int i = 0; str[i]; i++){
         free(str[i]);
     }
     free(str);
