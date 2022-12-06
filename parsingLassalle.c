@@ -39,7 +39,6 @@ int NumberInEcartType;
 t_Result **ListContact;
 t_Result **finalResult;
 
-
 float moy(t_Region ** region, float number){
     float somme = 0;
     for (int i = 0; region[i]; i++){
@@ -251,6 +250,14 @@ char ***parsingToTheEnd(){
     return (ret);
 }
 
+void freeExec(){
+    for (int i = 0; ListContact[i]; i++){
+        free(ListContact[i]);
+    }
+    free(ListContact);
+    free(finalResult);
+}
+
 char ***ItsToYouToPlay(t_Region **result, int NumberRegion){
 
     if (NumberRegion > lenRegion(result)){
@@ -308,6 +315,7 @@ char ***ItsToYouToPlay(t_Region **result, int NumberRegion){
 
     ConvertToTeam();
     char ***ret = parsingToTheEnd();
+    freeExec();
 
     return ret;
 }
