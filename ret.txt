@@ -1,5 +1,2 @@
-Nord-Alsace-Bourgogne
-Normandie-Bretagne-Centre-Loire
-Auvergne-Azur
-Paris
-Aquitaine-Occitanie
+Nord-Alsace-Normandie-Bretagne-Loire-Aquitaine-Occitanie-Azur
+Auvergne-Paris-Bourgogne-Centre

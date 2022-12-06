@@ -13,14 +13,18 @@ typedef struct s_Region{
     int PIB;
     char** temp;
 
+
+    //Solution ////////
     int ValuePIB;
     int team;
     int valided;
+    //Parsing /////////
+
 } t_Region;
 
 
 
-
+//Solution /////////////////////////////////////
 
 typedef struct s_result{
     t_Region*   region1;
@@ -28,17 +32,14 @@ typedef struct s_result{
     int value;
 } t_Result;
 
-
-
-
-
-
 float Moyenne;
 t_Region **AllRegion;
 float EcartType;
 int NumberInEcartType;
 t_Result **ListContact;
 t_Result **finalResult;
+int memTeam[MAXREGION];
+
 
 float moy(t_Region ** region, float number){
     float somme = 0;
@@ -53,17 +54,6 @@ void definePIB(){
         AllRegion[i]->ValuePIB = (AllRegion[i]->PIB - Moyenne) * (AllRegion[i]->PIB - Moyenne);
     }
 }
-
-int memTeam[MAXREGION];
-
-int searchTeam(int team){
-    for (int i = 0; memTeam[i] != -1; i++){
-        if (memTeam[i] == team)
-            return (i);
-    }
-    return (-1);
-}
-    
 
 float ecarType(t_Result **myResult){
     NumberInEcartType++;
@@ -90,20 +80,25 @@ float ecarType(t_Result **myResult){
                     }
                 }
                 ret += (moyennedif * moyennedif);
+
                 //dprintf(1, "-%d ", moyennedif * moyennedif);
             }
         }
     }
     for (int i = 0; AllRegion[i]; i++){
         if (AllRegion[i]->valided == 0){
+
             //dprintf(1, " %d-", AllRegion[i]->ValuePIB);
             //dprintf(1, " %s ", AllRegion[i]->name);
+
             ret += AllRegion[i]->ValuePIB;
         }
         else
             AllRegion[i]->valided = 0;
     }
+
     //dprintf(1, "resultat %f \n\n", ret / 10);
+
     return ret;
 }
 
@@ -135,7 +130,9 @@ void Search(int PathNumber, int i){
             for (j = 0; AllRegion[j]; j++){
                 if (AllRegion[j]->team == myTeam){
                     AllRegion[j]->team = ListContact[i]->region1->team;
+
                     //dprintf(1, " convert %s to %s ", AllRegion[j]->name, ListContact[i]->region1->name);
+
                     memTeam[k] = j;
                     k++;
                 }
@@ -153,19 +150,8 @@ void Search(int PathNumber, int i){
 
 int lenRegion(t_Region** myReg){
     int i;
-    for ( i = 0; myReg[i]; i++){
-    }
+    for ( i = 0; myReg[i]; i++){}
     return i;
-}
-
-void defineElement(){
-    for (int i = 0; AllRegion[i]; i++){
-        AllRegion[i]->PIB -= Moyenne;
-        AllRegion[i]->PIB *= AllRegion[i]->PIB;
-        AllRegion[i]->valided = 0;
-
-    }
-
 }
 
 t_Result **ListAllContact(t_Region**Region){
@@ -209,47 +195,7 @@ void convert(int i, int newTeam){
     }
 }
 
-char ***ItsToYouToPlay(t_Region **result, int NumberRegion){
-    Moyenne = moy(result, NumberRegion);
-    dprintf(1, "La moyenne est %f\n", Moyenne);
-    EcartType = __FLT_MAX__;
-    NumberInEcartType = 0;
-    int maxNum = lenRegion(result) - NumberRegion + 1;
-    finalResult = malloc(sizeof (t_Result) * ( maxNum));
-    dprintf(1, "Le nombre de liens sera de %d\n\n",maxNum - 1);
-    finalResult[maxNum - 1] = NULL;
-
-    for (int i = 0; result[i]; i++){
-        result[i]->team = i;
-    }
-    
-    ListContact = ListAllContact(result);
-    definePIB();
-    dprintf(1, "Les contacts sont :");
-    t_Region *lastContact = NULL;
-    int a = 0;
-    for (;ListContact[a]; a++){
-        if (ListContact[a]->region1 != lastContact){
-            dprintf(1, "\n");
-            lastContact = ListContact[a]->region1;
-        }
-        dprintf(1, " [%s-%s]", ListContact[a]->region1->name, ListContact[a]->region2->name);
-    }
-    dprintf(1, "\n\nLeur nombre est de %d\n\n", a);
-
-    Search(maxNum - 1,0);
-
-    lastContact = NULL;
-    dprintf(1, "Les contacts pris sont :");
-    for (int i = 0; finalResult[i]; i++){
-        if (ListContact[i]->region1 != lastContact){
-            dprintf(1, "\n");
-            lastContact = ListContact[i]->region1;
-        }
-        dprintf(1, " [%s-%s]",finalResult[i]->region1->name, finalResult[i]->region2->name );
-    }
-    dprintf(1, "\n\nNombre total de cas teste : %d\n", NumberInEcartType);
-    dprintf(1, "\nL'ecart-type final est : %f\n", EcartType);
+void ConvertToTeam(){
     int j = 0;
     for (int i = 0; AllRegion[i]; i++){
         AllRegion[i]->team = -1;
@@ -276,7 +222,9 @@ char ***ItsToYouToPlay(t_Region **result, int NumberRegion){
             j++;
         }
     }
+}
 
+char ***parsingToTheEnd(){
     char ***ret = malloc(sizeof(char **) * (MAXREGION + 1));
     int lenRet = -1;
     for (int i = 0; AllRegion[i]; i++){
@@ -301,6 +249,57 @@ char ***ItsToYouToPlay(t_Region **result, int NumberRegion){
             ret[lenRet][l] = NULL;
         }
     }
+    return (ret);
+}
+
+char ***ItsToYouToPlay(t_Region **result, int NumberRegion){
+    Moyenne = moy(result, NumberRegion);
+    dprintf(1, "La moyenne est %f\n", Moyenne);
+    EcartType = __FLT_MAX__;
+    NumberInEcartType = 0;
+    int maxNum = lenRegion(result) - NumberRegion + 1;
+    finalResult = malloc(sizeof (t_Result) * ( maxNum));
+    dprintf(1, "Le nombre de liens sera de %d\n\n",maxNum - 1);
+    finalResult[maxNum - 1] = NULL;
+
+    for (int i = 0; result[i]; i++){
+        result[i]->team = i;
+    }
+    
+    ListContact = ListAllContact(result);
+    definePIB();
+    dprintf(1, "Les contacts sont :");
+    
+    t_Region *lastContact = NULL;
+    int a = 0;
+    for (;ListContact[a]; a++){
+        if (ListContact[a]->region1 != lastContact){
+            dprintf(1, "\n");
+            lastContact = ListContact[a]->region1;
+        }
+        dprintf(1, " [%s-%s]", ListContact[a]->region1->name, ListContact[a]->region2->name);
+    }
+    dprintf(1, "\n\nLeur nombre est de %d\n\n", a);
+
+    Search(maxNum - 1,0);
+
+    dprintf(1, "Les contacts pris sont :");
+
+    lastContact = NULL;
+    for (int i = 0; finalResult[i]; i++){
+        if (ListContact[i]->region1 != lastContact){
+            dprintf(1, "\n");
+            lastContact = ListContact[i]->region1;
+        }
+        dprintf(1, " [%s-%s]",finalResult[i]->region1->name, finalResult[i]->region2->name );
+    }
+
+    dprintf(1, "\n\nNombre total de cas teste : %d\n", NumberInEcartType);
+    dprintf(1, "\nL'ecart-type final est : %f\n", EcartType);
+
+    ConvertToTeam();
+    char ***ret = parsingToTheEnd();
+
     return ret;
 }
 
