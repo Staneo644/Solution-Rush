@@ -8,12 +8,47 @@ class Region:
 		self.next_regions = line.split(':')[2].strip().split('-')
 
 	def __str__(self):
-		return self.name + ' : ' + str(self.pib) + ' : ' + '-'.join(self.next_regions)
+		return self.name + ' :' + str(self.pib) + ' :' + '-'.join(self.next_regions)
+
+	def touches(self, name):
+		return name in self.next_regions
+
+
+def doWeStop(listOfInt):
+	for num in listOfInt:
+		if num == 0:
+			return True
+	return False
 
 class FusedRegion:
 	def __init__(self, line, regions):
 		self.regions = line.strip().split('-')
 		self.pib = sum([region.pib for region in regions if region.name in self.regions])
+
+		listOfInt = [0] * len(self.regions)
+		listOfInt[0] = 1
+
+		stop = True
+		while stop and doWeStop(listOfInt):
+			j = 0
+			for region1 in self.regions:
+				i = 0	
+				stop = False
+				for region2 in self.regions:
+					if listOfInt[i] == 1 and [x for x in regions if x.name == region2][0].touches(region1):
+						listOfInt[j] = 1
+						stop = True
+					i += 1
+				j += 1
+
+
+		if doWeStop(listOfInt):
+			print(f'Some regions are not touching')
+			exit()
+
+
+	def __str__(self):
+		return '-'.join(self.regions) + ' :' + str(self.pib)
 
 def get_regions():
 	regions = []
@@ -31,9 +66,6 @@ def get_fused_regions(regions, filename):
 			for line in f.readlines():
 				if line.strip():
 					fused.append(FusedRegion(line, regions))
-
-		# for f in fused:
-		# 	print('-'.join(f.regions) + ': ' + str(f.pib))
 		return fused
 	except Exception as e:
 		print(f'A critical error occured in parsing of {filename}: {e}')
@@ -61,13 +93,17 @@ def main():
 	output_regions = get_fused_regions(regions, sys.argv[2])
 	reference_regions = get_fused_regions(regions, sys.argv[3])
 	compare_files(output_regions, reference_regions)
-	if calculate_standard_deviation(output_regions) >= calculate_standard_deviation(reference_regions):
+	for region in output_regions:
+		print(region)
+	print(f'Reference standard deviation: {calculate_standard_deviation(reference_regions)}')
+	print(f'Output standard deviation: {calculate_standard_deviation(output_regions)}')
+	if calculate_standard_deviation(output_regions) <= calculate_standard_deviation(reference_regions):
 		print('OK')
 	else:
 		print('KO')
 
 if __name__ == '__main__':
-	if (len(sys.argv) != 5):
-		print('Usage: python3 evaluate.py <regions_file> <output_file> <reference_file> <number_of_regions>')
+	if (len(sys.argv) != 4):
+		print('Usage: python3 evaluate.py <regions_file> <output_file> <reference_file>')
 		exit()
 	main()
