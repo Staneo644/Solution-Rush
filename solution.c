@@ -14,7 +14,7 @@ typedef struct s_Region{
     char** temp;
 
 
-    //Solution ////////
+    //Solution /////////
     int ValuePIB;
     int team;
     int valided;
@@ -100,7 +100,7 @@ float ecarType(t_Result **myResult){
     return ret;
 }
 
-void Search(int PathNumber, int i){
+void search(int PathNumber, int i){
     if (PathNumber == 0)
     {
         float temp = ecarType(ListContact);
@@ -136,7 +136,7 @@ void Search(int PathNumber, int i){
                 }
             }
             ListContact[i]->value = 1;
-            Search( PathNumber - 1, i + 1);
+            search( PathNumber - 1, i + 1);
             k--;
             ListContact[i]->value = 0;
             for (; k >= 0; k--){
@@ -152,7 +152,7 @@ int lenRegion(t_Region** myReg){
     return i;
 }
 
-t_Result **ListAllContact(t_Region**Region){
+t_Result **listAllContact(t_Region**Region){
     AllRegion = Region;
     int len = 0;
     for (int i = 0; Region[i]; i++){
@@ -193,7 +193,7 @@ void convert(int i, int newTeam){
     }
 }
 
-void ConvertToTeam(){
+void convertToTeam(){
     int j = 0;
     for (int i = 0; AllRegion[i]; i++){
         AllRegion[i]->team = -1;
@@ -258,7 +258,7 @@ void freeExec(){
     free(finalResult);
 }
 
-char ***ItsToYouToPlay(t_Region **result, int NumberRegion){
+char ***algo(t_Region **result, int NumberRegion){
 
     if (NumberRegion > lenRegion(result)){
         dprintf(1, "Nombre de regions teste trop grand\n");
@@ -282,7 +282,7 @@ char ***ItsToYouToPlay(t_Region **result, int NumberRegion){
         result[i]->team = i;
     }
     
-    ListContact = ListAllContact(result);
+    ListContact = listAllContact(result);
     definePIB();
     dprintf(1, "Les contacts sont :");
     
@@ -297,7 +297,7 @@ char ***ItsToYouToPlay(t_Region **result, int NumberRegion){
     }
     dprintf(1, "\n\nLeur nombre est de %d\n\n", a);
 
-    Search(maxNum - 1,0);
+    search(maxNum - 1,0);
 
     dprintf(1, "Les contacts pris sont :");
 
@@ -313,58 +313,14 @@ char ***ItsToYouToPlay(t_Region **result, int NumberRegion){
     dprintf(1, "\n\nNombre total de cas teste : %d\n", NumberInEcartType);
     dprintf(1, "\nL'ecart-type final est : %f\n", EcartType);
 
-    ConvertToTeam();
+    convertToTeam();
     char ***ret = parsingToTheEnd();
     freeExec();
 
     return ret;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-char** MySplitIsBiggerThanYours(char *str, char delim){
+char** bigSplit(char *str, char delim){
   
 	if (str == NULL)
 		return (NULL);
@@ -450,9 +406,7 @@ t_Region** freeRegion(t_Region** myRegion, int i){
     return NULL;
 }
 
-
-
-t_Region** ReadTheFile(FILE* fd){
+t_Region** parseFile(FILE* fd){
     char bufferName[REGIONMAXSIZE];
     char bufferList[REGIONMAXSIZE * MAXCONTACT + MAXCONTACT - 1];
     int bufferPIB[1];
@@ -469,7 +423,7 @@ t_Region** ReadTheFile(FILE* fd){
             myRegion[i] = malloc(sizeof(t_Region));
             if (myRegion[i] == NULL)
                 return freeRegion(myRegion, -1);
-            myRegion[i]->temp = MySplitIsBiggerThanYours(bufferList, '-');
+            myRegion[i]->temp = bigSplit(bufferList, '-');
             myRegion[i]->PIB = *bufferPIB;
             myRegion[i]->name = strdup(bufferName);
             if (!myRegion[i]->temp || !myRegion[i]-> name)
@@ -493,7 +447,7 @@ int pointerStrlen(char **str){
     return i;
 }
 
-t_Region* SearchByName(t_Region** myRegion, char * _name){
+t_Region* searchByName(t_Region** myRegion, char * _name){
     for (int i = 0; myRegion[i]; i++){
         if (strcmp(myRegion[i]->name, _name) == 0)
             return (myRegion[i]);
@@ -502,7 +456,7 @@ t_Region* SearchByName(t_Region** myRegion, char * _name){
     return NULL;
 }
 
-t_Region** PutThePointer(t_Region** MyRegion){
+t_Region** putPointer(t_Region** MyRegion){
     for (int i = 0; MyRegion[i] != NULL; i++){
         int size = pointerStrlen(MyRegion[i]->temp);
         MyRegion[i]->RegionTouch = malloc(sizeof (t_Region) * size);
@@ -510,7 +464,7 @@ t_Region** PutThePointer(t_Region** MyRegion){
             return freeRegion(MyRegion, -1);
         MyRegion[i]->RegionTouch[--size] = NULL;
         for (; size >= 0; size--){
-            MyRegion[i]->RegionTouch[size] = SearchByName(MyRegion, MyRegion[i]->temp[size]);
+            MyRegion[i]->RegionTouch[size] = searchByName(MyRegion, MyRegion[i]->temp[size]);
             
             if (MyRegion[i]->RegionTouch[size] == NULL){
 
@@ -521,7 +475,7 @@ t_Region** PutThePointer(t_Region** MyRegion){
     return MyRegion;
 }
 
-void freepointerpointerstr(char ***str){
+void freePointerStr(char ***str){
     for (int i = 0; str[i]; i++){
         free(str[i]);
     }
@@ -555,19 +509,19 @@ int main(int argc, char **argv){
 	if (NumberRegion < 1 || NumberRegion > MAXREGION)
 		return printf("le nombre de regions souhaites n'est pas valide\n");
 
-    t_Region** result = ReadTheFile(fd);
+    t_Region** result = parseFile(fd);
     if (result == NULL)
         return 1;
-    result = PutThePointer(result);
+    result = putPointer(result);
     if (result == NULL)
         return 1;
     
-    char ***ret = ItsToYouToPlay(result, NumberRegion);
+    char ***ret = algo(result, NumberRegion);
 
     if (ret == NULL)
 		return(1);
 	printRet(ret,  fdRet);
 	freeRegion(result, -1);
-    freepointerpointerstr(ret);
+    freePointerStr(ret);
     return 0;
 }
